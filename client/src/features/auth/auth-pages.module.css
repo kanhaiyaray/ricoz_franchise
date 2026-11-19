@@ -1,0 +1,252 @@
+.page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 32px 18px;
+  background:
+    radial-gradient(circle at 10% 5%, rgba(201, 29, 32, 0.1), transparent 32%),
+    #f5f6f8;
+  color: #182131;
+}
+
+.card {
+  width: min(100%, 480px);
+  padding: 34px;
+  border: 1px solid #e8ebef;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(12, 18, 30, 0.09);
+}
+
+.brand {
+  display: inline-flex;
+  margin-bottom: 25px;
+  color: #c91d20;
+  font-size: 18px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp(25px, 5vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.description {
+  margin: 9px 0 24px;
+  color: #737d8d;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.portals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 5px;
+  border-radius: 10px;
+  background: #f1f2f4;
+}
+
+.portalButton {
+  min-height: 40px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #737d8d;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.portalButton[aria-pressed="true"] {
+  background: #fff;
+  color: #c91d20;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.12);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field label {
+  color: #202a39;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.field input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #dfe3e9;
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+  color: #202a39;
+  font: inherit;
+  font-size: 14px;
+}
+
+.field input:focus {
+  border-color: #c91d20;
+  box-shadow: 0 0 0 3px rgba(201, 29, 32, 0.1);
+}
+
+.emailAction {
+  display: flex;
+  gap: 8px;
+}
+
+.emailAction input {
+  min-width: 0;
+}
+
+.emailAction button {
+  flex: 0 0 auto;
+  padding: 0 12px;
+  border: 1px solid #c91d20;
+  border-radius: 9px;
+  background: #fff;
+  color: #c91d20;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.submit {
+  min-height: 46px;
+  margin-top: 3px;
+  border: 1px solid #c91d20;
+  border-radius: 9px;
+  background: #c91d20;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.submit:disabled,
+.emailAction button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #f2caca;
+  border-radius: 8px;
+  background: #fff5f5;
+  color: #a51f22;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.note,
+.footer {
+  margin: 18px 0 0;
+  color: #737d8d;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.note {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff9e9;
+  color: #7b5a13;
+}
+
+.footer a {
+  color: #c91d20;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.portalPage {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background: #f5f6f8;
+  color: #182131;
+}
+
+.portalCard {
+  width: min(100%, 580px);
+  padding: 34px;
+  border: 1px solid #e8ebef;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 18px 55px rgba(12, 18, 30, 0.08);
+}
+
+.portalCard h1 {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: -0.7px;
+}
+
+.portalCard p {
+  color: #737d8d;
+  line-height: 1.6;
+}
+
+.portalActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.portalActions a,
+.portalActions button {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border: 1px solid #c91d20;
+  border-radius: 8px;
+  background: #c91d20;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.portalActions a:last-child {
+  background: #fff;
+  color: #c91d20;
+}
+
+@media (max-width: 520px) {
+  .card,
+  .portalCard {
+    padding: 25px 20px;
+  }
+}

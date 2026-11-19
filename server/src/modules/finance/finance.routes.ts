@@ -1,0 +1,362 @@
+import { Router } from "express";
+import fileUpload from "express-fileupload";
+import { auth, requireRole } from "../../middleware/auth.middleware.js";
+import { errorHandler } from "../../middleware/error_handler.middleware.js";
+import { validateRequest } from "../../middleware/validate_request.middleware.js";
+import { USER_ROLES } from "../../models/user.models.js";
+import {
+  cancelInvoice,
+  createCreditNote,
+  createElimination,
+  createInvoiceFromLead,
+  createInvoiceHandler,
+  createInvoicePaymentLink,
+  createJournal,
+  createPayment,
+  decideElimination,
+  downloadInvoicePdf,
+  downloadPaymentProof,
+  emailInvoice,
+  getBillingDashboard,
+  getFinanceSettings,
+  getInvoice,
+  getPayment,
+  issueInvoice,
+  listCreditNotes,
+  listEliminations,
+  listInvoices,
+  listJournals,
+  listPayments,
+  listRefunds,
+  razorpayWebhook,
+  rejectPayment,
+  refundPayment,
+  reversePayment,
+  updateFinanceSettings,
+  updateInvoice,
+  uploadPaymentProof,
+  verifyPayment,
+} from "./billing.controller.js";
+import {
+  deleteRevenueStreams,
+  getAiForecast,
+  getFinancialSummary,
+  getPlan,
+  requestRevenueDeletionOtp,
+  savePlan,
+} from "./planning.controller.js";
+import {
+  createInvoiceSchema,
+  createLeadInvoiceSchema,
+  createPaymentSchema,
+  creditNoteSchema,
+  deleteRevenueStreamsSchema,
+  eliminationDecisionSchema,
+  eliminationSchema,
+  emailInvoiceSchema,
+  financePlanBodySchema,
+  financeSettingsSchema,
+  financeYearParamsSchema,
+  invoiceParamsSchema,
+  journalSchema,
+  leadParamsSchema,
+  listFinanceQuerySchema,
+  paymentParamsSchema,
+  refundPaymentSchema,
+  rejectPaymentSchema,
+  reversePaymentSchema,
+  updateInvoiceSchema,
+} from "./finance.validation.js";
+
+const financeRouter = Router();
+const admin = requireRole(USER_ROLES.ADMIN);
+financeRouter.use(
+  auth,
+  requireRole(USER_ROLES.ADMIN, USER_ROLES.FRANCHISE),
+);
+
+financeRouter.get(
+  "/revenue-projections/:fiscalYearStart",
+  validateRequest(financeYearParamsSchema),
+  getPlan("revenue"),
+  errorHandler,
+);
+financeRouter.put(
+  "/revenue-projections/:fiscalYearStart",
+  validateRequest(financeYearParamsSchema),
+  validateRequest(financePlanBodySchema("revenue")),
+  savePlan("revenue"),
+  errorHandler,
+);
+financeRouter.post(
+  "/revenue-projections/:fiscalYearStart/deletion-otp",
+  validateRequest(financeYearParamsSchema),
+  requestRevenueDeletionOtp,
+  errorHandler,
+);
+financeRouter.delete(
+  "/revenue-projections/:fiscalYearStart/streams",
+  validateRequest(financeYearParamsSchema),
+  validateRequest(deleteRevenueStreamsSchema),
+  deleteRevenueStreams,
+  errorHandler,
+);
+financeRouter.get(
+  "/resource-planning/:fiscalYearStart",
+  validateRequest(financeYearParamsSchema),
+  getPlan("resource"),
+  errorHandler,
+);
+financeRouter.put(
+  "/resource-planning/:fiscalYearStart",
+  validateRequest(financeYearParamsSchema),
+  validateRequest(financePlanBodySchema("resource")),
+  savePlan("resource"),
+  errorHandler,
+);
+financeRouter.get(
+  "/cost-planning/:fiscalYearStart",
+  validateRequest(financeYearParamsSchema),
+  getPlan("cost"),
+  errorHandler,
+);
+financeRouter.put(
+  "/cost-planning/:fiscalYearStart",
+  validateRequest(financeYearParamsSchema),
+  validateRequest(financePlanBodySchema("cost")),
+  savePlan("cost"),
+  errorHandler,
+);
+financeRouter.get(
+  "/financial-summary/:fiscalYearStart",
+  validateRequest(financeYearParamsSchema),
+  getFinancialSummary,
+  errorHandler,
+);
+financeRouter.get(
+  "/ai-forecast/:fiscalYearStart",
+  validateRequest(financeYearParamsSchema),
+  getAiForecast,
+  errorHandler,
+);
+
+financeRouter.get(
+  "/billing/dashboard/consolidated",
+  admin,
+  getBillingDashboard(true),
+  errorHandler,
+);
+financeRouter.get(
+  "/billing/dashboard",
+  getBillingDashboard(),
+  errorHandler,
+);
+financeRouter.get(
+  "/billing/summary",
+  validateRequest(listFinanceQuerySchema),
+  getFinancialSummary,
+  errorHandler,
+);
+financeRouter.get("/billing/settings", getFinanceSettings, errorHandler);
+financeRouter.put(
+  "/billing/settings",
+  admin,
+  validateRequest(financeSettingsSchema),
+  updateFinanceSettings,
+  errorHandler,
+);
+
+financeRouter.get(
+  "/accounting/journals",
+  admin,
+  validateRequest(listFinanceQuerySchema),
+  listJournals,
+  errorHandler,
+);
+financeRouter.post(
+  "/accounting/journals",
+  admin,
+  validateRequest(journalSchema),
+  createJournal,
+  errorHandler,
+);
+financeRouter.get(
+  "/accounting/eliminations",
+  validateRequest(listFinanceQuerySchema),
+  listEliminations,
+  errorHandler,
+);
+financeRouter.post(
+  "/accounting/eliminations",
+  validateRequest(eliminationSchema),
+  createElimination,
+  errorHandler,
+);
+financeRouter.post(
+  "/accounting/eliminations/:eliminationId/decision",
+  admin,
+  validateRequest(eliminationDecisionSchema),
+  decideElimination,
+  errorHandler,
+);
+financeRouter.get(
+  "/billing/credit-notes",
+  validateRequest(listFinanceQuerySchema),
+  listCreditNotes,
+  errorHandler,
+);
+
+financeRouter.get(
+  "/billing/invoices",
+  validateRequest(listFinanceQuerySchema),
+  listInvoices,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/invoices",
+  validateRequest(createInvoiceSchema),
+  createInvoiceHandler,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/invoices/from-lead/:leadId",
+  validateRequest(leadParamsSchema),
+  validateRequest(createLeadInvoiceSchema),
+  createInvoiceFromLead,
+  errorHandler,
+);
+financeRouter.get(
+  "/billing/invoices/:invoiceId/pdf",
+  validateRequest(invoiceParamsSchema),
+  downloadInvoicePdf,
+  errorHandler,
+);
+financeRouter.get(
+  "/billing/invoices/:invoiceId",
+  validateRequest(invoiceParamsSchema),
+  getInvoice,
+  errorHandler,
+);
+financeRouter.patch(
+  "/billing/invoices/:invoiceId",
+  validateRequest(invoiceParamsSchema),
+  validateRequest(updateInvoiceSchema),
+  updateInvoice,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/invoices/:invoiceId/issue",
+  admin,
+  validateRequest(invoiceParamsSchema),
+  issueInvoice,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/invoices/:invoiceId/cancel",
+  admin,
+  validateRequest(invoiceParamsSchema),
+  cancelInvoice,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/invoices/:invoiceId/email",
+  validateRequest(invoiceParamsSchema),
+  validateRequest(emailInvoiceSchema),
+  emailInvoice,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/invoices/:invoiceId/payment-link",
+  validateRequest(invoiceParamsSchema),
+  createInvoicePaymentLink,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/invoices/:invoiceId/credit-notes",
+  admin,
+  validateRequest(invoiceParamsSchema),
+  validateRequest(creditNoteSchema),
+  createCreditNote,
+  errorHandler,
+);
+
+financeRouter.get(
+  "/billing/payments",
+  validateRequest(listFinanceQuerySchema),
+  listPayments,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/payments",
+  validateRequest(createPaymentSchema),
+  createPayment,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/payments/proof",
+  fileUpload({
+    limits: { files: 1, fileSize: 10 * 1024 * 1024 },
+    abortOnLimit: true,
+    responseOnLimit: JSON.stringify({
+      success: false,
+      message: "Payment proof exceeds the 10 MB limit.",
+    }),
+  }),
+  uploadPaymentProof,
+  errorHandler,
+);
+financeRouter.get(
+  "/billing/payments/:paymentId/proof",
+  validateRequest(paymentParamsSchema),
+  downloadPaymentProof,
+  errorHandler,
+);
+financeRouter.get(
+  "/billing/payments/:paymentId",
+  validateRequest(paymentParamsSchema),
+  getPayment,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/payments/:paymentId/verify",
+  admin,
+  validateRequest(paymentParamsSchema),
+  verifyPayment,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/payments/:paymentId/reject",
+  admin,
+  validateRequest(paymentParamsSchema),
+  validateRequest(rejectPaymentSchema),
+  rejectPayment,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/payments/:paymentId/reversals",
+  admin,
+  validateRequest(paymentParamsSchema),
+  validateRequest(reversePaymentSchema),
+  reversePayment,
+  errorHandler,
+);
+financeRouter.post(
+  "/billing/payments/:paymentId/refunds",
+  admin,
+  validateRequest(paymentParamsSchema),
+  validateRequest(refundPaymentSchema),
+  refundPayment,
+  errorHandler,
+);
+financeRouter.get(
+  "/billing/refunds",
+  validateRequest(listFinanceQuerySchema),
+  listRefunds,
+  errorHandler,
+);
+
+const financeWebhookRouter = Router();
+financeWebhookRouter.post("/razorpay", razorpayWebhook, errorHandler);
+
+export { financeWebhookRouter };
+export default financeRouter;
